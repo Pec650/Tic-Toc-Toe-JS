@@ -268,7 +268,14 @@ class Game {
             const matrix = this.convertToRowColumn(bestMove);
             this.updateBoardData(matrix.row, matrix.column);
         } else {
-            this.PlayersTurn = !this.PlayersTurn;
+            let row = 0, column = 0;
+            for (; row < this.row; ++row) {
+                for (; column < this.column; ++column) {
+                    if (this.boardData[row][column] == ' ') break;
+                }
+            }
+            if (this.validRowColumn(row, column)) this.updateBoardData(row, column);
+            else this.PlayersTurn = !this.PlayersTurn;
         }
     }
 
