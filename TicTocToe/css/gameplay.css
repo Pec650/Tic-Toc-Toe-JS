@@ -1,13 +1,8 @@
-@import url('../assets/fonts/fonts.css');
+@import url('./global.css');
 
 *::selection {
     background: transparent;
     color: inherit;
-}
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #15151d;
 }
 main {
     padding: 20px;
