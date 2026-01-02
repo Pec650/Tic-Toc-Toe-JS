@@ -49,21 +49,28 @@ main {
         corner-shape: squircle;
 
         box-shadow: 0 0 20px #131212;
-
-        transition: transform 0.05s ease-in-out;
-
+    }
+    div.active {
+        background-color: #555368;
+        transition: transform 0.05s ease-in-out,
+                    background-color 0s;
         &:hover {
             cursor: pointer;
             background-color: #7f7c95;
             transform: scale(1.05);
         }
     }
-    .tile-clicked {
+    div.inactive {
         animation: tile-clicked 0.2s ease-in-out forwards;
-        transition: none;
     }
-    .inactive {
-        pointer-events: none;
+    div.xTile {
+        background-color: #edc14a;
+    }
+    div.oTile {
+        background-color: #d74368ff;
+    }
+    div.undo-tile {
+        animation: undo-tile 0.2s ease-in-out forwards;
     }
 }
 #game-text-container {
@@ -90,9 +97,6 @@ main {
     justify-content: space-between;
 
     button {
-        cursor: pointer;
-        background-color: #edc14a;
-        color: white;
         padding: 20px;
         width: 100%;
         text-align: center;
@@ -100,15 +104,35 @@ main {
         letter-spacing: 3px;
         font-size: 25px;
         margin-bottom: 50px;
-        border: none;
+        border: 5px solid;
         border-radius: 100px;
         corner-shape: squircle;
         box-shadow: 0 0 20px #131212;
+    }
+
+    button.inactive {
+        cursor: default;
+        background-color: #555368;
+        color: white;
+        border-color: #555368;
+    }
+
+    button.active {
+        cursor: pointer;
+        background-color: #edc14a;
+        color: white;
+        border-color: #edc14a;
         transition: transform 0.1s ease-in-out;
 
         &:hover {
-            background-color: #d74368ff;
+            background-color: #d8943a;
             transform: scale(1.05);
+        }
+
+        &:active {
+            background-color: #d74368ff;
+            border-color: white;
+            transform: scale(1.0);
         }
     }
 }
@@ -118,6 +142,17 @@ main {
     }
     10% {
         transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1.0);
+    }
+}
+@keyframes undo-tile {
+    0% {
+        transform: scale(0.8);
+    }
+    10% {
+        transform: scale(0.5);
     }
     100% {
         transform: scale(1.0);

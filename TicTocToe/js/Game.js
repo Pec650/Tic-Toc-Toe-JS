@@ -1,13 +1,15 @@
 class Game {
     /* <== HTML ELEMENTS ==> */
     gameText;
+    undoButton;
     resetButton;
     board;
     buttons;
     /* <===================> */
 
     /* <== ASSETS VARIABLES ==> */
-    popSE = './assets/sounds/pop.mp3';
+    popSE = "./assets/sounds/pop.mp3";
+    undoPopSE = "./assets/sounds/pop2.mp3";
     /* <======================> */
 
     /* <== BOARD VARIABLES ==> */
@@ -18,23 +20,32 @@ class Game {
     /* <=====================> */
 
     /* <== GAMEPLAY VARIABLES ==> */
-    PlayersTurn = true;
+    HistoryData = new Stack();
+    InitialPlayerTurn = true; // CONSTANT, IT DETERMINES IF PLAYER IS FIRST TO PLAY
+    PlayersTurn = this.InitialPlayerTurn;
     PlayersLetter = 'X';
     OpponentsLetter = 'O';
+    CPUInterval = null;
     endGame = false;
     endGameType = -2;
     /* <========================> */
 
-    constructor(board, gameText, resetButton) {
+    constructor(board, gameText, undoButton, resetButton) {
         
         /* <== INITIALIZATION ==> */
         this.gameText = gameText;
+        
+        this.undoButton = undoButton;
+        this.updateButton(this.undoButton, false);
         this.resetButton = resetButton;
+        this.updateButton(this.resetButton, false);
+
         this.board = board;
 
         for (let index = 0; index < this.boardSize; ++index) {
-            const button = document.createElement('div');
+            const button = document.createElement("div");
             button.classList.add(index);
+            button.classList.add("active");
             button.id = "button"+index;
             const matrix = this.convertToRowColumn(index);
             button.innerText = this.boardData[matrix.row][matrix.column];
@@ -46,32 +57,44 @@ class Game {
         /* <====================> */
 
         /* <== GAMEPLAY ==> */
+        this.cpuPlays();
+        
         this.buttons.forEach((button, index) => {
             const matrix = this.convertToRowColumn(index);
             button.addEventListener("click", () => {
-                if (this.isButtonActive(button)) {
+                if (this.isButtonActive(button) && this.PlayersTurn) {
+                    this.updateButton(this.undoButton, true);
+                    this.updateButton(this.resetButton, true);
                     this.updateBoardData(matrix.row, matrix.column);
-                    if (!this.endGame) {
-                        this.temporyInactive(true);
-                        setTimeout(() => {
-                            this.cpuTurn();
-                            if (!this.endGame) this.temporyInactive(false);
-                        }, 500);
-                    }
+                    this.cpuPlays();
                 }
             });
         });
         /* <==============> */
     }
 
-    playPopSound(url) {
-        const sound = new Audio(url);
-        sound.play();
+    resetCPUInterval() {
+        if (this.CPUInterval != null) {
+            clearTimeout(this.CPUInterval);
+            this.CPUInterval = null;
+        }
+    }
+
+    cpuPlays() {
+        if (!this.PlayersTurn && !this.endGame) {
+            this.resetCPUInterval();
+            this.temporyInactive(true);
+            this.CPUInterval = setTimeout(() => {
+                this.cpuTurn();
+                if (!this.endGame) this.temporyInactive(false);
+            }, 500);
+        }
     }
 
     updateBoardData(row, column) {
-        if (this.validRowColumn(row, column)) {
+        if (this.validRowColumn(row, column) && this.boardData[row][column] == ' ') {
             this.boardData[row][column] = (this.PlayersTurn) ? this.PlayersLetter : this.OpponentsLetter;
+            this.updateHistoryData(this.PlayersTurn, row, column);
             this.updateBoardTexture(true, row, column);
         }
     }
@@ -81,16 +104,17 @@ class Game {
             const index = this.convertToIndex(row, column);
             if (this.validIndex(index)) {
                 const button = this.board.querySelector("#button"+index);
+                button.classList.remove("active");
+                button.classList.remove("undo-tile");
                 if (this.PlayersTurn) {
                     button.innerText = this.boardData[row][column];
-                    button.style.backgroundColor = "#edc14a";
+                    button.classList.add("xTile");
                 } else {
                     button.innerText = this.boardData[row][column];
-                    button.style.backgroundColor = "#d74368ff";
+                    button.classList.add("oTile");
                 }
                 this.playPopSound(this.popSE);
-                button.classList.add('tile-clicked');
-                button.classList.add('inactive');
+                button.classList.add("inactive");
                 this.PlayersTurn = !this.PlayersTurn;
             }
         }
@@ -117,8 +141,7 @@ class Game {
                     this.gameText.style.backgroundColor = "#d74368ff";
                     break;
             }
-            this.resetButton.style.display = "block";
-            this.buttons.forEach(button => { button.classList.add('inactive'); });
+            this.buttons.forEach(button => { button.classList.remove("active"); });
         } else {
             if (this.PlayersTurn) {
                 this.gameText.firstElementChild.innerText = this.PlayersLetter + " TURN";
@@ -130,11 +153,84 @@ class Game {
         }
     }
 
-    isButtonActive(button) { return !button.classList.contains('inactive') && !this.endGame; }
+    updateHistoryData(isPlayerTurn, row, column) {
+        const newHistory = {
+            playerTurn: isPlayerTurn,
+            row: row,
+            column: column
+        };
+        this.HistoryData.push(newHistory);
+    }
+
+    undoGameData() {
+        const undoLimit = (this.PlayersTurn) ? 2 : 1;
+        for (let i = 0; i < undoLimit && !this.HistoryData.isEmpty(); ++i) {
+            const lastHistory = this.HistoryData.pop();
+            if (lastHistory != null) {
+                this.resetCPUInterval();
+                const row = lastHistory.row;
+                const column = lastHistory.column;
+                this.boardData[row][column] = ' ';
+                this.PlayersTurn = lastHistory.playerTurn;
+                this.clearButton(row, column);
+                this.temporyInactive(false);
+                this.updateGameText();
+                this.cpuPlays();
+                this.playPopSound(this.undoPopSE);
+            }
+        }
+        if (this.HistoryData.isEmpty()) {
+            this.updateButton(this.undoButton, false);
+            this.updateButton(this.resetButton, false);
+        }
+    }
+
+    resetGame() {
+        this.HistoryData.reset();
+        this.resetCPUInterval();
+        for (let index = 0; index < this.boardSize; ++index) {
+            const matrix = this.convertToRowColumn(index);
+            this.boardData[matrix.row][matrix.column] = ' ';
+            this.PlayersTurn = this.InitialPlayerTurn;
+            this.clearButton(matrix.row, matrix.column);
+        }
+        this.playPopSound(this.undoPopSE);
+        this.updateGameText();
+        this.updateButton(this.undoButton, false);
+        this.updateButton(this.resetButton, false);
+        this.cpuPlays();
+    }
+
+    clearButton(row, column) {
+        const index = this.convertToIndex(row, column);
+        const button = this.board.querySelector("#button"+index);
+        button.innerText = ' ';
+        button.classList.remove("inactive");
+        button.classList.remove("xTile");
+        button.classList.remove("oTile");
+        button.classList.add("active");
+        button.classList.add("undo-tile");
+        setTimeout(() => { button.classList.remove("undo-tile"); }, 200);
+    }
+
+    updateButton(button, active) {
+        if (active) {
+            button.classList.remove("inactive");
+            button.classList.add("active");
+        }  else {
+            button.classList.remove("active");
+            button.classList.add("inactive");
+        }
+    }
+
+    isButtonActive(button) { return !button.classList.contains("inactive") && !this.endGame; }
 
     temporyInactive(inactive) {
         this.buttons.forEach(button => {
-            if (this.isButtonActive(button)) button.style.pointerEvents = (inactive) ? "none" : "auto";
+            if (this.isButtonActive(button)) {
+                if (inactive) button.classList.remove("active");
+                else button.classList.add("active");
+            }
         });
     }
 
@@ -241,6 +337,11 @@ class Game {
         }
     }
 
+    playPopSound(url) {
+        const sound = new Audio(url);
+        sound.play();
+    }
+
     convertToIndex(row, column) {
         return row * this.column + column;
     }
@@ -263,4 +364,28 @@ class Game {
 
     max (a, b) { return (a > b) ? a : b; }
     min (a, b) { return (a < b) ? a : b; }
+}
+
+class Stack {
+    stack = [];
+
+    push(data) {
+        this.stack.push(data);
+    }
+
+    pop() {
+        let data = null;
+        if (!this.isEmpty()) {
+            data = this.stack.pop();
+        }
+        return data;
+    }
+
+    isEmpty() {
+        return this.stack.length == 0;
+    }
+
+    reset() {
+        this.stack.length = 0;
+    }
 }
