@@ -1,5 +1,4 @@
 class Game {
-
     /* <== HTML ELEMENTS ==> */
     gameText;
     resetButton;
@@ -7,16 +6,16 @@ class Game {
     buttons;
     /* <===================> */
 
+    /* <== ASSETS VARIABLES ==> */
+    popSE = './assets/sounds/pop.mp3';
+    /* <======================> */
+
     /* <== BOARD VARIABLES ==> */
     row = 3;
     column = 3;
     boardSize = this.row * this.column;
     boardData = Array.from({length: this.row}, () => Array.from({length: this.column}, () => ' ')); // 2D ARRAY FOR THE BOARD
     /* <=====================> */
-
-    /* <== ASSETS VARIABLES ==> */
-    popSE = './assets/sounds/pop.mp3';
-    /* <======================> */
 
     /* <== GAMEPLAY VARIABLES ==> */
     PlayersTurn = true;
