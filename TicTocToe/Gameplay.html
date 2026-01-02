@@ -3,126 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Toc Toe - Gameplay</title>
-    <link href="./assets/fonts/fonts.css" rel="stylesheet">
-    <style>
-        *::selection {
-            background: transparent;
-            color: inherit;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #15151d;
-        }
-        main {
-            padding: 20px;
-            justify-items: center;
-            align-items: center;
-            max-width: fit-content;
-            margin-inline: auto;
-        }
-        #header-container {
-            cursor: default;
-            background-color: #555368;
-            color: white;
-            padding: 5px;
-            width: 475px;
-            text-align: center;
-            font-family: 'Manline Slabs';
-            letter-spacing: 3px;
-            font-size: 15px;
-            margin-top: 25px;
-            margin-bottom: 25px;
-            border-radius: 100px;
-            corner-shape: squircle;
-            box-shadow: 0 0 20px #131212;
-        }
-        #board-container {
-            background-color: rgba(0, 0, 0, 0);
-            display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(3, 1fr);
-
-            div {
-                height: 150px;
-                width: 150px;
-                background-color: #555368;
-                
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 80px;
-                font-family: 'Holly Berry Pop';
-
-                border-radius: 100px;
-                corner-shape: squircle;
-
-                box-shadow: 0 0 20px #131212;
-
-                &:hover {
-                    cursor: pointer;
-                    background-color: #7f7c95;
-                }
-            }
-            .tile-clicked {
-                animation: tile-clicked 0.2s ease-in-out forwards;
-            }
-            .inactive {
-                pointer-events: none;
-            }
-        }
-        #game-text-container {
-            cursor: default;
-            background-color: #555368;
-            color: white;
-            padding: 5px;
-            width: 475px;
-            text-align: center;
-            font-family: 'Manline Slabs';
-            letter-spacing: 3px;
-            font-size: 15px;
-            margin-top: 25px;
-            margin-bottom: 25px;
-            border-radius: 100px;
-            corner-shape: squircle;
-            display: block;
-            box-shadow: 0 0 20px #131212;
-        }
-        #reset-button {
-            cursor: pointer;
-            background-color: #edc14a;
-            color: white;
-            padding: 30px;
-            width: 475px;
-            text-align: center;
-            font-family: 'Manline Slabs';
-            letter-spacing: 3px;
-            font-size: 30px;
-            margin-bottom: 50px;
-            border: none;
-            border-radius: 100px;
-            corner-shape: squircle;
-            display: none;
-            box-shadow: 0 0 20px #131212;
-
-            &:hover {
-                background-color: #d74368ff;
-            }
-        }
-        @keyframes tile-clicked {
-            0% {
-                transform: scale(1.0);
-            }
-            10% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1.0);
-            }
-        }
-    </style>
+    <title>Tic-Toc-Toe - Gameplay</title>
+    <link href="./css/gameplay.css" rel="stylesheet">
 </head>
 <body>
     <main>
@@ -133,15 +15,26 @@
         <div id="game-text-container">
             <h1></h1>
         </div>
-        <button id="reset-button" onclick="window.location.reload()">RESET</button>
+        <div class="button-group">
+            <button id="undo-button">UNDO</button>
+            <button id="reset-button">RESET</button>
+        </div>
     </main>
-
-    <script src="./js/Game.js"></script>
+    <script src="./js/game.js"></script>
     <script>
         const boardContainer = document.getElementById("board-container");
         const gameTextContainer = document.getElementById("game-text-container");
+        const undoButton = document.getElementById("undo-button");
         const resetButton = document.getElementById("reset-button");
-        const gameplay = new Game(boardContainer, gameTextContainer, resetButton);
+        const gameplay = new Game(boardContainer, gameTextContainer, undoButton, resetButton);
+        
+        undoButton.addEventListener("click", () => {
+            if (undoButton.classList.contains("active")) gameplay.undoGameData();
+        });
+        
+        resetButton.addEventListener("click", () => {
+            if (resetButton.classList.contains("active")) gameplay.resetGame();
+        });
     </script>
 </body>
 </html>

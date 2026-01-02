@@ -1,0 +1,12 @@
+@import url('../assets/fonts/fonts.css');
+
+*::selection {
+    background: transparent;
+    color: inherit;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #15151d;
+}

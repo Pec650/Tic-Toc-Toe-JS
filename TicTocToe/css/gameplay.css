@@ -1,0 +1,156 @@
+@import url('./global.css');
+
+main {
+    padding: 20px;
+    justify-items: center;
+    align-items: center;
+    max-width: fit-content;
+    margin-inline: auto;
+}
+#header-container {
+    cursor: default;
+    background-color: #555368;
+    color: white;
+    padding: 5px;
+    width: 390px;
+    text-align: center;
+    font-family: 'Manline Slabs';
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    border-radius: 100px;
+    corner-shape: squircle;
+    box-shadow: 0 0 20px #131212;
+}
+#board-container {
+    background-color: rgba(0, 0, 0, 0);
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+
+    div {
+        height: 120px;
+        width: 120px;
+        background-color: #555368;
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 70px;
+        font-family: 'Holly Berry Pop';
+
+        border-radius: 100px;
+        corner-shape: squircle;
+
+        box-shadow: 0 0 20px #131212;
+    }
+    div.active {
+        background-color: #555368;
+        transition: transform 0.05s ease-in-out,
+                    background-color 0s;
+        &:hover {
+            cursor: pointer;
+            background-color: #7f7c95;
+            transform: scale(1.05);
+        }
+    }
+    div.inactive {
+        animation: tile-clicked 0.2s ease-in-out forwards;
+    }
+    div.xTile {
+        background-color: #edc14a;
+    }
+    div.oTile {
+        background-color: #d74368ff;
+    }
+    div.undo-tile {
+        animation: undo-tile 0.2s ease-in-out forwards;
+    }
+}
+#game-text-container {
+    cursor: default;
+    background-color: #555368;
+    color: white;
+    padding: 5px;
+    width: 390px;
+    text-align: center;
+    font-family: 'Manline Slabs';
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    border-radius: 100px;
+    corner-shape: squircle;
+    display: block;
+    box-shadow: 0 0 20px #131212;
+}
+.button-group {
+    display: flex;
+    width: 390px;
+    gap: 20px;
+    justify-content: space-between;
+
+    button {
+        padding: 20px;
+        width: 100%;
+        text-align: center;
+        font-family: 'Manline Slabs';
+        letter-spacing: 3px;
+        font-size: 25px;
+        margin-bottom: 50px;
+        border: 5px solid;
+        border-radius: 100px;
+        corner-shape: squircle;
+        box-shadow: 0 0 20px #131212;
+    }
+
+    button.inactive {
+        cursor: default;
+        background-color: #555368;
+        color: white;
+        border-color: #555368;
+    }
+
+    button.active {
+        cursor: pointer;
+        background-color: #edc14a;
+        color: white;
+        border-color: #edc14a;
+        transition: transform 0.1s ease-in-out;
+
+        &:hover {
+            background-color: #d8943a;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            background-color: #d74368ff;
+            border-color: white;
+            transform: scale(1.0);
+        }
+    }
+}
+@keyframes tile-clicked {
+    0% {
+        transform: scale(1.0);
+    }
+    10% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1.0);
+    }
+}
+@keyframes undo-tile {
+    0% {
+        transform: scale(0.8);
+    }
+    10% {
+        transform: scale(0.5);
+    }
+    100% {
+        transform: scale(1.0);
+    }
+}

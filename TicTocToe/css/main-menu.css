@@ -1,0 +1,58 @@
+@import url('./global.css');
+
+main {
+    justify-items: center;
+}
+
+#header-container {
+    cursor: default;
+    background-color: #555368;
+    color: white;
+    padding: 5px;
+    width: 390px;
+    text-align: center;
+    font-family: 'Manline Slabs';
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin-top: 150px;
+    margin-bottom: 25px;
+    border-radius: 100px;
+    corner-shape: squircle;
+    box-shadow: 0 0 20px #131212;
+}
+
+.button-group {
+    display: block;
+    width: 390px;
+    justify-content: space-between;
+
+    button {
+        cursor: pointer;
+        background-color: #edc14a;
+        color: white;
+        padding: 20px;
+        width: 100%;
+        text-align: center;
+        font-family: 'Manline Slabs';
+        letter-spacing: 3px;
+        font-size: 25px;
+        border: 5px solid #edc14a;
+        border-radius: 100px;
+        corner-shape: squircle;
+        box-shadow: 0 0 20px #131212;
+        margin-top: 50px;
+
+        transition: transform 0.1s ease-in-out;
+
+        &:hover {
+            background-color: #d8943a;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            background-color: #d74368ff;
+            border-color: white;
+            transform: scale(1.0);
+        }
+    }
+}
