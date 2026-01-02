@@ -4,8 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe</title>
+    <link href="./css/main-menu.css" rel="stylesheet">
 </head>
 <body>
-    
+    <main>
+        <div id="header-container">
+            <h1>TIC-TAC-TOE</h1>
+        </div>
+        <div class="button-group">
+            <button id="playButton">PLAY</button>
+        </div>
+    </main>
+    <script>
+        const playButton = document.getElementById("playButton");
+        playButton.addEventListener("click", () => {
+            window.location = "./gameplay.html";
+        });
+    </script>
 </body>
 </html>
