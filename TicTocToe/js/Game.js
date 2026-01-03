@@ -10,6 +10,8 @@ class Game {
     /* <== ASSETS VARIABLES ==> */
     popSE = "./assets/sounds/pop.mp3";
     undoPopSE = "./assets/sounds/pop2.mp3";
+    winPopSE = "./assets/sounds/winpop.mp3";
+    tiePopSE = "./assets/sounds/tiepop.mp3";
     /* <======================> */
 
     /* <== BOARD VARIABLES ==> */
@@ -94,6 +96,7 @@ class Game {
 
     updateBoardData(row, column) {
         if (this.validRowColumn(row, column) && this.boardData[row][column] == ' ') {
+            this.playSound(this.popSE);
             this.boardData[row][column] = (this.PlayersTurn) ? this.PlayersLetter : this.OpponentsLetter;
             this.updateHistoryData(this.PlayersTurn, row, column);
             this.updateBoardTexture(true, row, column);
@@ -142,19 +145,26 @@ class Game {
             this.buttons.forEach(button => {
                 button.classList.remove("active"); 
             });
+            const delay = (this.endGameType != 0) ? 250 : 50;
             let i = 0;
             for (const index of this.WinnerTiles) {
                 if (this.endGame) {
                     setTimeout(() => {
-                        const button = this.board.querySelector("#button"+index);
-                        button.classList.add("end-game");
-                        setTimeout(() => { button.classList.remove("end-game")}, 400);
-                    }, i * 50);
+                        if (this.endGame) {
+                            const button = this.board.querySelector("#button"+index);
+                            button.classList.add("end-game");
+                            if (this.endGameType != 0) {
+                                this.playSound(this.winPopSE);
+                            } else {
+                                this.playSound(this.tiePopSE);
+                            }
+                            setTimeout(() => { button.classList.remove("end-game")}, 400);
+                        }
+                    }, i * delay);
                     ++i;
                 } else break;
             }
         } else {
-            this.playSound(this.popSE);
             if (this.PlayersTurn) {
                 this.gameText.firstElementChild.innerText = this.PlayersLetter + " TURN";
                 this.gameText.style.backgroundColor = "#edc14a";
