@@ -25,8 +25,9 @@ class Game {
     HistoryData = new Stack();
     InitialPlayerTurn = true; // CONSTANT, IT DETERMINES IF PLAYER IS FIRST TO PLAY
     PlayersTurn = this.InitialPlayerTurn;
-    PlayersLetter = 'X';
-    OpponentsLetter = 'O';
+    PlayersLetter = (this.InitialPlayerTurn) ? 'X' : 'O';
+    OpponentsLetter = (this.InitialPlayerTurn) ? 'O' : 'X';
+    CPUPlays = true; // CONSTANT, IT DETERMINES IF CPU IS THE OPPONENT
     CPUInterval = null;
     WinnerTiles = null;
     endGame = false;
@@ -65,7 +66,7 @@ class Game {
         this.buttons.forEach((button, index) => {
             const matrix = this.convertToRowColumn(index);
             button.addEventListener("click", () => {
-                if (this.isButtonActive(button) && this.PlayersTurn) {
+                if (this.isButtonActive(button) && (!this.CPUPlays || this.CPUPlays && this.PlayersTurn)) {
                     this.updateButton(this.undoButton, true);
                     this.updateButton(this.resetButton, true);
                     this.updateBoardData(matrix.row, matrix.column);
@@ -84,7 +85,7 @@ class Game {
     }
 
     cpuPlays() {
-        if (!this.PlayersTurn && !this.endGame) {
+        if (this.CPUPlays && !this.PlayersTurn && !this.endGame) {
             this.resetCPUInterval();
             this.temporyInactive(true);
             this.CPUInterval = setTimeout(() => {
@@ -109,12 +110,11 @@ class Game {
             if (this.validIndex(index)) {
                 const button = this.board.querySelector("#button"+index);
                 this.updateButton(button, false);
-                if (this.PlayersTurn) {
-                    button.innerText = this.boardData[row][column];
-                    button.classList.add("xTile");
+                button.innerText = this.boardData[row][column];
+                if (this.InitialPlayerTurn) {
+                    button.classList.add(this.PlayersTurn ? "xTile" : "oTile");
                 } else {
-                    button.innerText = this.boardData[row][column];
-                    button.classList.add("oTile");
+                    button.classList.add(this.PlayersTurn ? "oTile" : "xTile");
                 }
                 this.PlayersTurn = !this.PlayersTurn;
             }
@@ -131,7 +131,7 @@ class Game {
             switch(this.endGameType) {
                 case -1:
                     this.gameText.firstElementChild.innerText = this.PlayersLetter + " WINS";
-                    this.gameText.style.backgroundColor = "#edc14a";
+                    this.gameText.style.backgroundColor = (this.InitialPlayerTurn) ? "#edc14a" : "#d74368ff";
                     break;
                 case 0:
                     this.gameText.firstElementChild.innerText = "TIE";
@@ -139,7 +139,7 @@ class Game {
                     break;
                 case 1:
                     this.gameText.firstElementChild.innerText = this.OpponentsLetter + " WINS";
-                    this.gameText.style.backgroundColor = "#d74368ff";
+                    this.gameText.style.backgroundColor = (this.InitialPlayerTurn) ? "#d74368ff" : "#edc14a";
                     break;
             }
             this.buttons.forEach(button => {
@@ -167,10 +167,10 @@ class Game {
         } else {
             if (this.PlayersTurn) {
                 this.gameText.firstElementChild.innerText = this.PlayersLetter + " TURN";
-                this.gameText.style.backgroundColor = "#edc14a";
+                this.gameText.style.backgroundColor = (this.InitialPlayerTurn) ? "#edc14a" : "#d74368ff";
             } else {
                 this.gameText.firstElementChild.innerText = this.OpponentsLetter + " TURN";
-                this.gameText.style.backgroundColor = "#d74368ff";
+                this.gameText.style.backgroundColor = (this.InitialPlayerTurn) ? "#d74368ff" : "#edc14a";
             }
         }
     }
