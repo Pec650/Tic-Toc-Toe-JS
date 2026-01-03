@@ -8,10 +8,10 @@ class Game {
     /* <===================> */
 
     /* <== ASSETS VARIABLES ==> */
-    popSE = "./assets/sounds/pop.mp3";
-    undoPopSE = "./assets/sounds/pop2.mp3";
-    winPopSE = "./assets/sounds/winpop.mp3";
-    tiePopSE = "./assets/sounds/tiepop.mp3";
+    popSE = new SoundEffect("./assets/sounds/pop.mp3");
+    undoPopSE = new SoundEffect("./assets/sounds/pop2.mp3");
+    winPopSE = new SoundEffect("./assets/sounds/winpop.mp3");
+    tiePopSE = new SoundEffect("./assets/sounds/tiepop.mp3");
     /* <======================> */
 
     /* <== BOARD VARIABLES ==> */
@@ -96,7 +96,7 @@ class Game {
 
     updateBoardData(row, column) {
         if (this.validRowColumn(row, column) && this.boardData[row][column] == ' ') {
-            this.playSound(this.popSE);
+            this.popSE.play();
             this.boardData[row][column] = (this.PlayersTurn) ? this.PlayersLetter : this.OpponentsLetter;
             this.updateHistoryData(this.PlayersTurn, row, column);
             this.updateBoardTexture(true, row, column);
@@ -154,9 +154,9 @@ class Game {
                             const button = this.board.querySelector("#button"+index);
                             button.classList.add("end-game");
                             if (this.endGameType != 0) {
-                                this.playSound(this.winPopSE);
+                                this.winPopSE.play();
                             } else {
-                                this.playSound(this.tiePopSE);
+                                this.tiePopSE.play();
                             }
                             setTimeout(() => { button.classList.remove("end-game")}, 400);
                         }
@@ -202,7 +202,7 @@ class Game {
             }
         }
         this.temporyInactive(false);
-        this.playSound(this.undoPopSE);
+        this.undoPopSE.play();
         if (this.HistoryData.isEmpty()) {
             this.updateButton(this.undoButton, false);
             this.updateButton(this.resetButton, false);
@@ -221,7 +221,7 @@ class Game {
             this.clearButton(matrix.row, matrix.column);
         }
         this.temporyInactive(false);
-        this.playSound(this.undoPopSE);
+        this.undoPopSE.play();
         this.updateGameText();
         this.updateButton(this.undoButton, false);
         this.updateButton(this.resetButton, false);
@@ -395,11 +395,6 @@ class Game {
         }
     }
 
-    playSound(url) {
-        const sound = new Audio(url);
-        sound.play();
-    }
-
     convertToIndex(row, column) {
         return row * this.column + column;
     }
@@ -445,5 +440,27 @@ class Stack {
 
     reset() {
         this.stack.length = 0;
+    }
+}
+
+class SoundEffect {
+    audio = [];
+
+    constructor(url) {
+        try {
+            this.audio = new Audio(url);
+            this.audio.preload = "auto";
+        } catch {
+            console.error("Failed to preload sound effect.");
+        }
+    }
+
+    play() {
+        try {
+            const sound = this.audio.cloneNode();
+            sound.play();
+        } catch {
+            console.error("Failed to play sound effect.");
+        }
     }
 }

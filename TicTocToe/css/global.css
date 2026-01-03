@@ -5,8 +5,14 @@
     color: inherit;
 }
 
+* {
+    -webkit-tap-highlight-color: transparent;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 html {
-  font-size: 1vw; 
+    font-size: 1vw; 
 }
 
 body {
@@ -17,6 +23,6 @@ body {
     transform-origin: top center;
 }
 
-* {
-    -webkit-tap-highlight-color: transparent;
+*::-webkit-scrollbar {
+    display: none;
 }
