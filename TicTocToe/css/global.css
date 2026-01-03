@@ -5,8 +5,18 @@
     color: inherit;
 }
 
+html {
+  font-size: 1vw; 
+}
+
 body {
     margin: 0;
     padding: 0;
     background-color: #15151d;
+    zoom: 0.8;
+    transform-origin: top center;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
 }

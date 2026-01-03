@@ -26,6 +26,7 @@ class Game {
     PlayersLetter = 'X';
     OpponentsLetter = 'O';
     CPUInterval = null;
+    WinnerTiles = null;
     endGame = false;
     endGameType = -2;
     /* <========================> */
@@ -104,8 +105,7 @@ class Game {
             const index = this.convertToIndex(row, column);
             if (this.validIndex(index)) {
                 const button = this.board.querySelector("#button"+index);
-                button.classList.remove("active");
-                button.classList.remove("undo-tile");
+                this.updateButton(button, false);
                 if (this.PlayersTurn) {
                     button.innerText = this.boardData[row][column];
                     button.classList.add("xTile");
@@ -113,8 +113,6 @@ class Game {
                     button.innerText = this.boardData[row][column];
                     button.classList.add("oTile");
                 }
-                this.playPopSound(this.popSE);
-                button.classList.add("inactive");
                 this.PlayersTurn = !this.PlayersTurn;
             }
         }
@@ -141,8 +139,22 @@ class Game {
                     this.gameText.style.backgroundColor = "#d74368ff";
                     break;
             }
-            this.buttons.forEach(button => { button.classList.remove("active"); });
+            this.buttons.forEach(button => {
+                button.classList.remove("active"); 
+            });
+            let i = 0;
+            for (const index of this.WinnerTiles) {
+                if (this.endGame) {
+                    setTimeout(() => {
+                        const button = this.board.querySelector("#button"+index);
+                        button.classList.add("end-game");
+                        setTimeout(() => { button.classList.remove("end-game")}, 400);
+                    }, i * 50);
+                    ++i;
+                } else break;
+            }
         } else {
+            this.playSound(this.popSE);
             if (this.PlayersTurn) {
                 this.gameText.firstElementChild.innerText = this.PlayersLetter + " TURN";
                 this.gameText.style.backgroundColor = "#edc14a";
@@ -163,6 +175,8 @@ class Game {
     }
 
     undoGameData() {
+        this.endGame = false;
+        this.endGameType = -2;
         const undoLimit = (this.PlayersTurn) ? 2 : 1;
         for (let i = 0; i < undoLimit && !this.HistoryData.isEmpty(); ++i) {
             const lastHistory = this.HistoryData.pop();
@@ -173,12 +187,12 @@ class Game {
                 this.boardData[row][column] = ' ';
                 this.PlayersTurn = lastHistory.playerTurn;
                 this.clearButton(row, column);
-                this.temporyInactive(false);
                 this.updateGameText();
                 this.cpuPlays();
-                this.playPopSound(this.undoPopSE);
             }
         }
+        this.temporyInactive(false);
+        this.playSound(this.undoPopSE);
         if (this.HistoryData.isEmpty()) {
             this.updateButton(this.undoButton, false);
             this.updateButton(this.resetButton, false);
@@ -186,6 +200,8 @@ class Game {
     }
 
     resetGame() {
+        this.endGame = false;
+        this.endGameType = -2;
         this.HistoryData.reset();
         this.resetCPUInterval();
         for (let index = 0; index < this.boardSize; ++index) {
@@ -194,7 +210,8 @@ class Game {
             this.PlayersTurn = this.InitialPlayerTurn;
             this.clearButton(matrix.row, matrix.column);
         }
-        this.playPopSound(this.undoPopSE);
+        this.temporyInactive(false);
+        this.playSound(this.undoPopSE);
         this.updateGameText();
         this.updateButton(this.undoButton, false);
         this.updateButton(this.resetButton, false);
@@ -205,6 +222,7 @@ class Game {
         const index = this.convertToIndex(row, column);
         const button = this.board.querySelector("#button"+index);
         button.innerText = ' ';
+        button.classList.remove("end-game");
         button.classList.remove("inactive");
         button.classList.remove("xTile");
         button.classList.remove("oTile");
@@ -220,6 +238,8 @@ class Game {
         }  else {
             button.classList.remove("active");
             button.classList.add("inactive");
+            button.classList.add("tile-clicked");
+            setTimeout(() => { button.classList.remove("tile-clicked"); }, 200);
         }
     }
 
@@ -231,25 +251,46 @@ class Game {
                 if (inactive) button.classList.remove("active");
                 else button.classList.add("active");
             }
+            button.classList.remove("end-game");
         });
     }
 
     isWinner(board, player) {
         if (player === this.PlayersLetter || player === this.OpponentsLetter) {
-            const b = board;
-            /* ROW WINNER */
-            for (let r = 0; r < this.row; r++) { if (b[r].every(c => c === player)) return true; }
-            /* COLUMN WINNER */
-            for (let c = 0; c < this.row; c++) { if (b.every(row => row[c] === player)) return true; }
-            /* DIAGONAL WINNER */
-            if (b.every((row, i) => row[i] === player)) return true;
-            /* ANTI-DIAGONAL WINNER */
-            if (b.every((row, i) => row[this.row - 1 - i] === player)) return true;
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (const win of winConditions) {
+                let hasWon = true;
+                for (const index of win) {
+                    const matrix = this.convertToRowColumn(index);
+                    if (board[matrix.row][matrix.column] != player) {
+                        hasWon = false;
+                        break;
+                    }
+                }
+                if (hasWon) {
+                    this.WinnerTiles = win;
+                    return true;
+                }
+            }
         }
+        this.WinnerTiles = null;
         return false;
     }
 
-    isFilled(board) { return !board.flat().includes(' '); }
+    isFilled(board) { 
+        if (!board.flat().includes(' ')) {
+            this.WinnerTiles = Array.from({ length: this.boardSize }, (_, i) => i);
+            return true;
+        } else {
+            this.WinnerTiles = null;
+            return false;
+        }
+    }
 
     terminatingState(board) {
         if (this.isWinner(board, this.PlayersLetter)) return -1;
@@ -344,7 +385,7 @@ class Game {
         }
     }
 
-    playPopSound(url) {
+    playSound(url) {
         const sound = new Audio(url);
         sound.play();
     }

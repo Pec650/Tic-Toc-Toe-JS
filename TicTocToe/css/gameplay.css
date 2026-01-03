@@ -56,17 +56,20 @@ main {
             transform: scale(1.05);
         }
     }
-    div.inactive {
-        animation: tile-clicked 0.2s ease-in-out forwards;
-    }
     div.xTile {
         background-color: #edc14a;
     }
     div.oTile {
         background-color: #d74368ff;
     }
+    div.tile-clicked {
+        animation: tile-clicked 0.2s ease-in-out forwards;
+    }
     div.undo-tile {
         animation: undo-tile 0.2s ease-in-out forwards;
+    }
+    div.end-game {
+        animation: end-game 0.4s ease-in-out forwards;
     }
 }
 #game-text-container {
@@ -132,6 +135,7 @@ main {
         }
     }
 }
+
 @keyframes tile-clicked {
     0% {
         transform: scale(1.0);
@@ -152,5 +156,16 @@ main {
     }
     100% {
         transform: scale(1.0);
+    }
+}
+@keyframes end-game {
+    10% {
+        transform: scale(0.7) rotate(-20deg);
+    }
+    80% {
+        transform: scale(1.2) rotate(390deg);
+    }
+    100% {
+        transform: scale(1.0) rotate(360deg);
     }
 }
