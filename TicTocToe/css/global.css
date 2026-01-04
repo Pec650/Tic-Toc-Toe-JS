@@ -26,3 +26,7 @@ body {
 *::-webkit-scrollbar {
     display: none;
 }
+
+button, input, select {
+    outline: none;
+}

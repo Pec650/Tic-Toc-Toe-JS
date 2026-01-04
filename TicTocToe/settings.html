@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Toc-Toe - Settings</title>
+    <link rel="icon" href="../tictactoe.ico" type="image/x-icon"/>
+    <link href="./css/settings.css" rel="stylesheet">
+</head>
+<body>
+    <main>
+        <div id="header-container">
+            <h1>SETTINGS</h1>
+        </div>
+        <div>
+            <div id="settings-container">
+                <label for="audio-range">AUDIO</label>
+                <input name="audio-range" type="range" min="0" max="100" oninput="updateAudio(this)">
+            </div>
+            <div id="settings-container">
+                <label for="cpu-difficulty">CPU DIFFICULTY</label>
+                <select name="cpu-difficulty" onchange="updateCPUDifficulty(this)"></select>
+            </div>
+            <div id="settings-container">
+                <label for="player-letter">PLAYER'S LETTER</label>
+                <input name="x-option" type="button" value="X" onclick="updatePlayerLetter(value)">
+                <input name="o-option" type="button" value="O" onclick="updatePlayerLetter(value)">
+            </div>
+            <div id="settings-container">
+                <label for="allow-undo">ALLOW UNDO</label>
+                <input name="allow-undo" type="checkbox" onclick="updateAllowUndo(this)">
+            </div>
+            <div id="settings-container">
+                <label for="allow-animations">ANIMATIONS</label>
+                <input name="allow-animations" type="checkbox" onclick="updateAllowAnimations(this)">
+            </div>
+        </div>
+        <div class="button-group">
+            <button onclick="window.location = './main-menu.html'">BACK</button>
+        </div>
+    </main>
+    <script src="./js/settings.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const audioRange = getInputElement("audio-range");
+            audioRange.value = getAudioSettings();
+            updateAudio(audioRange);
+
+            const difficultyDropdown = getSelectElement("cpu-difficulty");
+            for (const option in getDifficultyOptions()) {
+                const newOption = document.createElement("option");
+                newOption.value = option;
+                newOption.innerText = option;
+                if (getCPUDifficultySetting() == newOption.value) newOption.selected = true;
+                difficultyDropdown.appendChild(newOption);
+            }
+
+            updatePlayerLetter(getPlayerLetterSetting());
+
+            const allowUndo = getInputElement("allow-undo");
+            allowUndo.checked = getAllowUndoSettings();
+
+            const allowAnimations = getInputElement("allow-animations");
+            allowAnimations.checked = getAllowAnimationsSettings();
+        });
+
+        function updateAudio(input) {
+            const label = getLabelElement(input.name);
+            label.innerText = "AUDIO (" + input.value + "%)";
+            updateAudioSetting(input.value);
+        }
+
+        function updateCPUDifficulty(input) {
+            updateCPUDifficultySetting(input.value);
+        }
+
+        function updatePlayerLetter(value) {
+            const xButton = getInputElement("x-option");
+            const oButton = getInputElement("o-option");
+            if (value == "X") {
+                xButton.classList.remove("inactive");
+                oButton.classList.add("inactive");
+            } else {
+                xButton.classList.add("inactive");
+                oButton.classList.remove("inactive");
+            }
+            updatePlayerLetterSetting(value);
+        }
+
+        function updateAllowUndo(input) {
+            updateAllowUndoSetting(input.checked);
+        }
+
+        function updateAllowAnimations(input) {
+            updateAllowAnimationsSetting(input.checked);
+        }
+
+        function getInputElement(name) { return document.querySelector("input[name='" + name + "']"); }
+        function getSelectElement(name) { return document.querySelector("select[name='" + name + "']"); }
+        function getLabelElement(name) { return document.querySelector("label[for='" + name + "']"); }
+    </script>
+</body>
+</html>

@@ -21,14 +21,20 @@ class Game {
     boardData = Array.from({length: this.row}, () => Array.from({length: this.column}, () => ' ')); // 2D ARRAY FOR THE BOARD
     /* <=====================> */
 
+    /* <== SETTINGS VARIABLES ==> */
+    InitialPlayerTurn = getPlayerLetterSetting() == 'X';
+    CPUPlays = true; // CONSTANT, IT DETERMINES IF CPU IS THE OPPONENT
+    CPUDifficulty = getCPUDifficultySetting();
+    AllowAnimations = getAllowAnimationsSettings();
+    /* <========================> */
+
     /* <== GAMEPLAY VARIABLES ==> */
     HistoryData = new Stack();
-    InitialPlayerTurn = true; // CONSTANT, IT DETERMINES IF PLAYER IS FIRST TO PLAY
     PlayersTurn = this.InitialPlayerTurn;
     PlayersLetter = (this.InitialPlayerTurn) ? 'X' : 'O';
     OpponentsLetter = (this.InitialPlayerTurn) ? 'O' : 'X';
-    CPUPlays = true; // CONSTANT, IT DETERMINES IF CPU IS THE OPPONENT
     CPUInterval = null;
+    CPUTurns = 0;
     WinnerTiles = null;
     endGame = false;
     endGameType = -2;
@@ -67,7 +73,7 @@ class Game {
             const matrix = this.convertToRowColumn(index);
             button.addEventListener("click", () => {
                 if (this.isButtonActive(button) && (!this.CPUPlays || this.CPUPlays && this.PlayersTurn)) {
-                    this.updateButton(this.undoButton, true);
+                    if (getAllowUndoSettings()) this.updateButton(this.undoButton, true);
                     this.updateButton(this.resetButton, true);
                     this.updateBoardData(matrix.row, matrix.column);
                     this.cpuPlays();
@@ -152,13 +158,12 @@ class Game {
                     setTimeout(() => {
                         if (this.endGame) {
                             const button = this.board.querySelector("#button"+index);
-                            button.classList.add("end-game");
+                            this.animateButton(button, "end-game", 4);
                             if (this.endGameType != 0) {
                                 this.winPopSE.play();
                             } else {
                                 this.tiePopSE.play();
                             }
-                            setTimeout(() => { button.classList.remove("end-game")}, 400);
                         }
                     }, i * delay);
                     ++i;
@@ -185,27 +190,29 @@ class Game {
     }
 
     undoGameData() {
-        this.endGame = false;
-        this.endGameType = -2;
-        const undoLimit = (this.PlayersTurn) ? 2 : 1;
-        for (let i = 0; i < undoLimit && !this.HistoryData.isEmpty(); ++i) {
-            const lastHistory = this.HistoryData.pop();
-            if (lastHistory != null) {
-                this.resetCPUInterval();
-                const row = lastHistory.row;
-                const column = lastHistory.column;
-                this.boardData[row][column] = ' ';
-                this.PlayersTurn = lastHistory.playerTurn;
-                this.clearButton(row, column);
-                this.updateGameText();
-                this.cpuPlays();
+        if (getAllowUndoSettings()) {
+            this.endGame = false;
+            this.endGameType = -2;
+            const undoLimit = (this.PlayersTurn) ? 2 : 1;
+            for (let i = 0; i < undoLimit && !this.HistoryData.isEmpty(); ++i) {
+                const lastHistory = this.HistoryData.pop();
+                if (lastHistory != null) {
+                    this.resetCPUInterval();
+                    const row = lastHistory.row;
+                    const column = lastHistory.column;
+                    this.boardData[row][column] = ' ';
+                    this.PlayersTurn = lastHistory.playerTurn;
+                    this.clearButton(row, column);
+                    this.updateGameText();
+                    this.cpuPlays();
+                }
             }
-        }
-        this.temporyInactive(false);
-        this.undoPopSE.play();
-        if (this.HistoryData.isEmpty()) {
-            this.updateButton(this.undoButton, false);
-            this.updateButton(this.resetButton, false);
+            this.temporyInactive(false);
+            this.undoPopSE.play();
+            if (this.HistoryData.isEmpty()) {
+                this.updateButton(this.undoButton, false);
+                this.updateButton(this.resetButton, false);
+            }
         }
     }
 
@@ -237,8 +244,7 @@ class Game {
         button.classList.remove("xTile");
         button.classList.remove("oTile");
         button.classList.add("active");
-        button.classList.add("undo-tile");
-        setTimeout(() => { button.classList.remove("undo-tile"); }, 200);
+        this.animateButton(button, "undo-tile", 2);
     }
 
     updateButton(button, active) {
@@ -248,8 +254,7 @@ class Game {
         }  else {
             button.classList.remove("active");
             button.classList.add("inactive");
-            button.classList.add("tile-clicked");
-            setTimeout(() => { button.classList.remove("tile-clicked"); }, 200);
+            this.animateButton(button, "tile-clicked", 2);
         }
     }
 
@@ -263,6 +268,13 @@ class Game {
             }
             button.classList.remove("end-game");
         });
+    }
+
+    animateButton(button, animation, time) {
+        if (this.AllowAnimations) {
+            button.classList.add(animation);
+            setTimeout(() => { button.classList.remove(animation)}, time * 100);
+        }
     }
 
     isWinner(board, player) {
@@ -314,6 +326,43 @@ class Game {
     }
 
     cpuTurn() {
+        if (this.CPUPlays && !this.endGame) {
+            switch(this.CPUDifficulty) {
+                case "Easy":
+                    this.randomizeMove();
+                    break;
+                case "Medium":
+                    if (this.CPUTurns % 2 == 0) {
+                        this.randomizeMove();
+                    } else {
+                        this.chooseBestMove();
+                    }
+                    break;
+                case "Hard":
+                    if (this.CPUTurns <= 1) {
+                        this.randomizeMove();
+                    } else {
+                        this.chooseBestMove();
+                    }
+                    break;
+                case "Impossible":
+                    this.chooseBestMove();
+                    break;
+            }
+            this.CPUTurns++;
+        }
+    }
+
+    randomizeMove() {
+        let row, column;
+        do {
+            row = Math.floor(Math.random() * this.row);
+            column = Math.floor(Math.random() * this.column);
+        } while (!this.validRowColumn(row, column) || this.boardData[row][column] != ' ');
+        this.updateBoardData(row, column);
+    }
+
+    chooseBestMove() {
         const bestMove = this.getBestMove(this.boardData, !this.PlayersTurn);
         if (this.validIndex(bestMove)) {
             const matrix = this.convertToRowColumn(bestMove);
@@ -445,6 +494,7 @@ class Stack {
 
 class SoundEffect {
     audio = [];
+    volume = parseFloat(getAudioSettings()) / 100;
 
     constructor(url) {
         try {
@@ -458,6 +508,7 @@ class SoundEffect {
     play() {
         try {
             const sound = this.audio.cloneNode();
+            sound.volume = this.volume;
             sound.play();
         } catch {
             console.error("Failed to play sound effect.");

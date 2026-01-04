@@ -1,0 +1,145 @@
+@import url("./global.css");
+
+main {
+    justify-items: center;
+}
+
+#header-container {
+    cursor: default;
+    background-color: #555368;
+    color: white;
+    padding: 5px;
+    width: 390px;
+    text-align: center;
+    font-family: 'Manline Slabs';
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin-top: 50px;
+    margin-bottom: 25px;
+    border-radius: 100px;
+    corner-shape: squircle;
+    box-shadow: 0 0 20px #131212;
+}
+
+#settings-container {
+    position: relative;
+    width: 480px;
+    max-width: 480px;
+    margin-top: 50px;
+    
+    label {
+        display: inline-block;
+        font-family: 'Manline Slabs';
+        letter-spacing: 3px;
+        font-size: 28px;
+        color: white;
+        width: 300px;
+    }
+
+    input, select { cursor: pointer; }
+
+    input[type="range"] {
+        margin-top: 5px;
+        height: 50px;
+        width: 100%;
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 30px;
+            min-height: 30px;
+        }
+    }
+
+    select {
+        min-height: 30px;
+        font-family: 'Manline Slabs';
+        letter-spacing: 3px;
+        font-size: 25px;
+    }
+
+    input[type="button"] {
+        min-width: 35px;
+        min-height: 35px;
+        font-family: 'Holly Berry Pop';
+        font-size: 20px;
+        color: white;
+        border: none;
+        border-radius: 100px;
+        corner-shape: squircle;
+    }
+
+    input[name="x-option"] {
+        background-color: #edc14a;
+        &.inactive {
+            background-color: #555368;
+        }
+    }
+
+    input[name="o-option"] {
+        background-color: #d74368ff;
+        margin-left: 20px;
+        &.inactive {
+            background-color: #555368;
+        }
+    }
+
+    input[type="checkbox"] {
+        min-width: 35px;
+        min-height: 35px;
+        transform: translateY(5px);
+        clip-path: circle(65%);
+    }
+}
+
+.button-group {
+    display: block;
+    width: 390px;
+    justify-content: space-between;
+    margin-bottom: 50px;
+    
+    button {
+        cursor: pointer;
+        background-color: #edc14a;
+        color: white;
+        padding: 20px;
+        width: 100%;
+        text-align: center;
+        font-family: 'Manline Slabs';
+        letter-spacing: 3px;
+        font-size: 25px;
+        border: 5px solid #edc14a;
+        border-radius: 100px;
+        corner-shape: squircle;
+        box-shadow: 0 0 20px #131212;
+        margin-top: 50px;
+
+        transition: transform 0.1s ease-in-out;
+
+        &:hover {
+            background-color: #d8943a;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            background-color: #d74368ff;
+            border-color: white;
+            transform: scale(1.0);
+        }
+    }
+}
+
+@media all and (max-width: 1400px) {
+    #settings-container {
+        max-width: 300px;
+        justify-items: center;
+        justify-content: center;
+        align-items: center;
+        label {
+            font-size: 18px;
+        }
+        input, select {
+            margin-top: 20px;
+        }
+    }
+}
